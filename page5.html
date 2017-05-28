@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<!--
+	Binary by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+	<head>
+		<title>Destiny API Wrapping Up</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body>
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="logo"><strong>The Destiny API</strong> A Beginner's Guide</a>
+				<nav>
+					<a href="#menu">Directory</a>
+				</nav>
+			</header>
+
+		<!-- Nav -->
+			<nav id="menu">
+				<ul class="links">
+					<li><a href="index.html">Home</a></li>
+                    <li><a href="page1.html">What is the Destiny API?</a></li>
+					<li><a href="page2.html">Obtaining an API Key</a></li>
+					<li><a href="page3.html">Making Your First Request</a></li>
+                    <li><a href="page4.html">Decoding Your Response</a></li>
+                    <li><a href="page6.html">Resources</a></li>
+				</ul>
+			</nav>
+
+		<!-- Main -->
+			<section id="main">
+				<div class="inner">
+					<div class="image fit">
+						<img src="images/destiny_5.jpg" alt="" />
+					</div>
+					<header>
+						<h1>Wrapping Up</h1>
+                    </header>
+                    <h4>What now?</h4>
+					<p>Take a moment to breath. You got through it! We’ve covered a lot of stuff in this tutorial, and I think it might be useful to run through everything we’ve done so far.</p>
+                    <ul>
+                        <code>var request = new XMLHttpRequest();</code>
+                        <p></p>
+                        <li>Using AJAX, we opened several HTTP GET requests.</li>
+                        <p></p>
+                        <code>request.open("GET", endpoint, true);</code>
+                        <p></p>
+                        <li>First, before we could look up anything interesting about out characters we had to make an API request to get out member ID. This is the ID that is linked to your Destiny account. </li>
+                        <p></p>
+                        <pre><code>
+                            var request = new XMLHttpRequest();
+                            var endpoint = "https://www.bungie.net/Platform/Destiny/" + credentials.memberType + "/Stats/GetMembershipIdByDisplayName/" + credentials.username + "/";
+                            request.open("GET", endpoint, true);
+                            request.onreadystatechange = function(){
+                                if(request.readyState === 4 && request.status === 200){
+                                    var response = JSON.parse(request.responseText);
+                                    console.log(response.Response);
+                                }
+                            };
+                            request.send();
+                        </code></pre>
+                        <p></p>
+                        <li>This opened up some more requests, but to get what we were after we then had to get the IDs for our individual characters. This took a little more work to parse the data from our JSON response.</li>
+                        <p></p>
+                        <pre><code>
+                            var request = new XMLHttpRequest();
+                            var endpoint = "http://www.bungie.net/Platform/Destiny/Stats/Account/" + credentials.memberType + "/" + credentials.memberID + "/";
+                            request.open("GET", endpoint, true);
+                            request.setRequestHeader('X-API-Key', credentials.APIKey);
+ 
+                            request.onreadystatechange = function(){
+                                if(request.readyState === 4 && request.status === 200){
+                                    var response = JSON.parse(request.responseText);
+                                    var chars = recordCharIDs(response);
+                                    console.log(characters);
+                                }
+                            }
+                            request.send();
+
+                            function recordCharIDs(response){
+                                var charArray = response.Response.characters;
+                                var totalChars = charArray.length - 1;
+                                var characters = {};
+                                for(var i = 0; i < totalChars; i++){
+                                    var charIndex = charArray[i];
+                                    if(!charIndex.deleted){
+                                        characters[i] = charIndex.characterID;
+                                    }
+                                }
+                                return characters;
+                            }
+                        </code></pre>
+                        <p></p>
+                        <li>After we had our member and character ID’s we were finally able to make our request for exotic weapon data. Parsing this data required slightly more navigation through our response but ultimately was very similar to before.</li>
+                        <p></p>
+                        <pre><code>
+                            var request = new XMLHttpRequest();
+                            var endpoint = "http://www.bungie.net/Platform/Destiny/Stats/UniqueWeapons/" + credentials.memberType + "/" + credentials.memberID + "/" + characters.char1 + "/";
+                            request.open("GET", endpoint, true);
+                            request.setRequestHeader('X-API-Key', credentials.APIKey);
+ 
+                            request.onreadystatechange = function(){
+                                if(request.readyState === 4 && request.status === 200){
+                                    var response = JSON.parse(request.responseText);
+                                    var weaponStats = recordWeaponData(response);
+                                    console.log(weaponStats);
+                                }
+                            }
+                            request.send();
+
+                            function recordWeaponData(response){
+                                var weaponArray = response.Response.data.weapons;
+                                var totalWeapons = weaponArray.length - 1;
+                                var weapons = {};
+                                for(var i = 0; i < totalWeapons - 1; i++){
+                                    var weaponIndex = weaponArray[i];
+                                    var weaponKills = weaponIndex.values.uniqueWeaponKills.basic.value;
+                                    var precisionRatio = weaponIndex.values.uniqueWeaponKillsPrecisionKills.basic.value;
+                                    weapons[i] = {"kills": weaponKills, "accuracy": precisionRatio};
+                                }
+                                return weapons; 
+                            }
+                        </code></pre>
+                        <p></p>
+                        <li>What we got for our efforts to isolate our weapon data was a bunch of hashcode reference ID’s. These prevented us from identifying which exotic weapon stats belonged to which weapon, but we solved this by passing the hashcode reference ID’s in another GET request to Destiny’s manifest.</li>
+                        <p></p>
+                        <pre><code>
+                            var request = new XMLHttpRequest();
+                            request.open("GET", "http://www.bungie.net/Platform/Destiny/Manifest/" + type.hash + "/" + weapon.hash + "/", true);
+                            request.setRequestHeader('X-API-Key', credentials.APIKey);
+ 
+                            request.onreadystatechange = function(){
+                                if(request.readyState === 4 && request.status === 200){
+                                    var response = JSON.parse(request.responseText);
+                                    console.log(getWeaponName(response));
+                                }
+                            }
+                            request.send();
+
+                            function getWeaponName(response){
+                                return response.Response.data.inventoryItem.itemName;
+                            }
+                        </code></pre>
+                        <p></p>
+                        <li>From there, we should finally be able to re-associate our stats with our weapons and end up with something like this (though I'll leave implementing the formatting to you):</li>
+                        <p></p>
+                        <pre><code>
+                            Titan:
+                            
+                                Nechrochasm: 
+                                    Weapon Kills: 1023
+                                    Accuracy: 23.9%
+                                
+                                Lord of Wolves:
+                                    Weapon Kills: 1182
+                                    Accuracy: 55.3%
+                                    
+                                The Last Word:
+                                    Weapon Kills: 1639
+                                    Accuracy: 2447423793
+                                    
+                            ...
+                        </code></pre>
+                        <p></p>
+                    </ul>
+                          
+                    <a href="page4.html" class="button special">Prev: Decoding Your Response</a>
+                    <a href="page6.html" class="button">Next: Resources</a>
+                </div>
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="copyright">
+					&copy; Colton McDavid. Design: <a href="https://templated.co">TEMPLATED</a>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<!--
+	Binary by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+	<head>
+		<title>Destiny API Getting a Key</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body>
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="logo"><strong>The Destiny API</strong> A Beginner's Guide</a>
+				<nav>
+					<a href="#menu">Directory</a>
+				</nav>
+			</header>
+
+		<!-- Nav -->
+			<nav id="menu">
+				<ul class="links">
+					<li><a href="index.html">Home</a></li>
+                    <li><a href="page1.html">What is the Destiny API?</a></li>
+					<li><a href="page3.html">Making Your First Request</a></li>
+					<li><a href="page4.html">Decoding Your Response</a></li>
+                    <li><a href="page5.html">Wrapping Up</a></li>
+                    <li><a href="page6.html">Resources</a></li>
+				</ul>
+			</nav>
+
+		<!-- Main -->
+			<section id="main">
+				<div class="inner">
+					<div class="image fit">
+						<img src="images/destiny_2.jpg" alt="" />
+					</div>
+					<header>
+						<h1>Obtaining an API Key</h1>
+						<p class="info">Get Your Destiny API Key <a href="https://www.bungie.net/en/Companion?bru=%252fen%252fApplication">Here</a></p>
+					</header>
+                    <h4>What is it?</h4>
+					<p>To control how many requests are being made to their servers, many developers require an API key to be used with their API.  An API key is typically a long string of numbers and characters that is specific to each user and serves a number of tracking and security purposes.  For example, this allows developers to track users making large amounts of requests and, if necessary, throttle or suspend access to their servers.</p>
+                    <p>Bungie has said that they will not take this action except in extreme cases. However, it is still a good practice to not share your API key, especially as other developers may not be so forgiving.</p>
+                    
+                    <h4>How do I get one?</h4>
+                    <p>You can get an API key for the Destiny API by visiting <a href="https://www.bungie.net/en/Companion?bru=%252fen%252fApplication">this link</a> and signing in with your Bungie.net account. From there, follow the instructions on the page to get your own unique API key. As a part of this process, you will have to register an app with Bungie.net. This API key is linked to this app and you can access it there any time by logging into your Bungie.net account.</p>
+                    <p>At this point, you will need to set your origin header at the bottom of your app page on Bungie.net. This is necessary for browser based applications using JavaScript and is a feature of CORS requests. For testing purposes, you can set it to "*" without the quotes, although you may eventually want to change it to the url you host your app on.</p>
+                    
+                    <a href="page1.html" class="button special">Prev: What is the Destiny API?</a>
+                    <a href="page3.html" class="button">Next: Making Your First Request</a>
+                </div>
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="copyright">
+					&copy; Colton McDavid. Design: <a href="https://templated.co">TEMPLATED</a>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<!--
+	Binary by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+	<head>
+		<title>Destiny API Parse Response</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body>
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="logo"><strong>The Destiny API</strong> A Beginner's Guide</a>
+				<nav>
+					<a href="#menu">Directory</a>
+				</nav>
+			</header>
+
+		<!-- Nav -->
+			<nav id="menu">
+				<ul class="links">
+					<li><a href="index.html">Home</a></li>
+                    <li><a href="page1.html">What is the Destiny API?</a></li>
+					<li><a href="page2.html">Obtaining an API Key</a></li>
+					<li><a href="page3.html">Making Your First Request</a></li>
+                    <li><a href="page5.html">Wrapping Up</a></li>
+                    <li><a href="page6.html">Resources</a></li>
+				</ul>
+			</nav>
+
+		<!-- Main -->
+			<section id="main">
+				<div class="inner">
+					<div class="image fit">
+						<img src="images/destiny_4.jpg" alt="" />
+					</div>
+					<header>
+						<h1>Decoding Your Response</h1>
+						<p class="info">Official Guide to Reading the Destiny <a href="https://www.bungie.net/en/Clan/Post/39966/146106624/0/0">Manifest</a></p>
+                    </header>
+                    <h4>What am I looking at?</h4>
+					<p> If you took a good look at the response to our exotic weapons request, you were probably pretty confused. You might have expected to see exotic weapon names like "Thorn" or "No Land Beyond" but instead saw something like this:</p>
+                    <pre><code>
+                        {"referenceId":2228467481,"values":
+                            {"uniqueWeaponKills":
+                                {"statId":"uniqueWeaponKills","basic":
+                                    {"value":1023,"displayValue":"1023"}
+                                },"uniqueWeaponPrecisionKills":
+                                    {"statId":"uniqueWeaponPrecisionKills","basic":
+                                        {"value":245,"displayValue":"245"}
+                                    },"uniqueWeaponKillsPrecisionKills":
+                                        {"statId":"uniqueWeaponKillsPrecisionKills","basic":
+                                            {"value":0.23949169110459434,"displayValue":"24%"}
+                                        }
+                                    }
+                                },
+                                {"referenceId":2344494719,"values":
+                                    {"uniqueWeaponKills":
+                                        {"statId":"uniqueWeaponKills","basic":
+                                            {"value":294,"displayValue":"294"}
+                                        },"uniqueWeaponPrecisionKills":
+                        ....
+                    </code></pre>
+                    <p></p>
+                    <p>We can see our stats with each weapon but where are the weapon names? With the Destiny API, in game objects like specific weapons, armor, and maps are returned as hashcode reference ID's. Luckily, these ID's  can be decoded with only one more request.</p>
+                    
+                    <h4>What now?</h4>
+                    <p>All we need to do is make a request to the Destiny manifest. If you're curious, you can get to the manifest directly <a href="https://www.bungie.net/platform/Destiny/Manifest/">here</a>, although this will not help us much in practice and if we made a request to here we would have to wade through a bunch of JSON sub directories to find what we want. I've set up a request here to directly translate the hash code for our weapons into weapon names:</p>
+                    <pre><code>
+                        var request = new XMLHttpRequest();
+                        request.open("GET", "http://www.bungie.net/Platform/Destiny/Manifest/" + type.hash + "/" + weapon.hash + "/", true);
+                        request.setRequestHeader('X-API-Key', credentials.APIKey);
+ 
+                        request.onreadystatechange = function(){
+                            if(request.readyState === 4 && request.status === 200){
+                                var response = JSON.parse(request.responseText);
+                                console.log(getWeaponName(response));
+                            }
+                        }
+                        request.send();
+
+                        function getWeaponName(response){
+                            return response.Response.data.inventoryItem.itemName;
+                        }
+                    </code></pre>
+                    <p></p>
+                    <p>Here, weapon.hash is the reference ID of the weapon and the type.hash is they type of object that refers to. There is a good list for figuring that part out <a href="http://bungienetplatform.wikia.com/wiki/DestinyDefinitionType">here</a>. For our weapons we want "6". You may have looked at the reference ID's for your exotic weapons and thought they looked similar to our character ID's. We can also make another GET request with the appropriate type.hash ("3") to decode our characters into classes (Warlock, Titan, Hunter).</p>
+                    <p>Now that you have translated at least some items from hashcode, you can store them in your own objects so that you don't have to keep requesting the same information from the Destiny API. That's almost all of the code we need to write. All that is left to do is some final formatting of our data before we can present it.</p>
+                    
+                    <a href="page3.html" class="button special">Prev: Making Your First Request</a>
+                    <a href="page5.html" class="button">Next: Wrapping Up</a>
+                </div>
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="copyright">
+					&copy; Colton McDavid. Design: <a href="https://templated.co">TEMPLATED</a>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

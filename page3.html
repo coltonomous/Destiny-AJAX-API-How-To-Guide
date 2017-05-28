@@ -1,0 +1,195 @@
+<!DOCTYPE HTML>
+<!--
+	Binary by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+	<head>
+		<title>Destiny API First Request</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body>
+
+		<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="logo"><strong>The Destiny API</strong> A Beginner's Guide</a>
+				<nav>
+					<a href="#menu">Directory</a>
+				</nav>
+			</header>
+
+		<!-- Nav -->
+			<nav id="menu">
+				<ul class="links">
+					<li><a href="index.html">Home</a></li>
+                    <li><a href="page1.html">What is the Destiny API?</a></li>
+					<li><a href="page2.html">Obtaining an API Key</a></li>
+					<li><a href="page4.html">Decoding Your Response</a></li>
+                    <li><a href="page5.html">Wrapping Up</a></li>
+                    <li><a href="page6.html">Resources</a></li>
+				</ul>
+			</nav>
+
+		<!-- Main -->
+			<section id="main">
+				<div class="inner">
+					<div class="image fit">
+						<img src="images/destiny_3.jpg" alt="" />
+					</div>
+					<header>
+						<h1>Making Your First Request</h1>
+						<p class="info">Destiny API Official <a href="https://www.bungie.net/platform/destiny/help/">Documentation</a></p>
+                    </header>
+                    <h4>What is it?</h4>
+					<p>A request is made whenever your computer tries to receive information (like a webpage or, in our case JSON data) from another over the internet. They are made through HTTP or Hyper-Text Transfer Protocol, which is a set of rules that govern most of the information transfer on the internet. </p>
+                    <p>Requests come in two flavors, GET and POST. For GET requests, query parameters (think keywords) are displayed as part of the URL in your browser. This is not the case for POST requests, although they may still require the same sort of information to be passed as part of their request body (as opposed to the request header). </p>
+                    <p>Because GET requests display parameters, it poses a potential security risk if one of those parameters is, say, your password. Thus, for requests containing sensitive information (like login credentials), POST requests are typically used to hide that infomation in the request body. For the Destiny API, these include pretty much any request to change something about your account, such as inventory management or account settings. Everything else is made under GET requests. For the purposes of this tutorial, we will focus on these as they are simpler to explain and do not require going into priavte endpoints which can be tricky.</p>
+                    
+                    <h4>How does it work?</h4>
+                    <p>For this tutorial, we will be using JavaScript to build our app. In JavaScript, a convenient way to make HTTP requests is with AJAX, using an "XMLHttpRequest" object. This object is accessed as a function, which we will store in a variable as I have done below:</p>
+                    <code>var request = new XMLHttpRequest();</code>
+                    <p></p>
+                    
+                    <p>Next, we must open our request:</p>
+                    <code>request.open("GET", endpoint, true); </code>
+                    <p></p>
+                    
+                    <p>As you can see, we open our request as a GET request and pass it a true value so that it runs asynchronously. Our endpoint is a combination of the host url and some other stuff. An exmaple endpoint for us would be something like:</p>
+                    <code>var endpoint = "http://www.bungie.net/Platform/Destiny/SearchDestinyPlayer/" + credentials.memberType + "/" + credentials.username + "/";</code>
+                    <p></p>
+                    
+                    <p>Here, http://www.bungie.net/ is the host. Everything to the right is specfifc to the endpoint. That is, it will change based on what information you try to request. The membership ID shown above will be a '1' if your account is on Xbox or a '0' if it’s on PlayStation. Your username will be your display name on either Xbox Live or PSN. Notice that I have encapsulated my member type, and username for security purposes. I have done the same with my API key as well and everything else encapsulated in an otherwise undefined object. I tried to give these variables helpful names so that you can figure out what to add. Simply replace those values with your own and you should be good to go.</p>
+                    
+                    <p>Next, we set the request header on our request object. It is important that we assign it as 'X-API-Key' as I have done here:</p>
+                    <code>request.setRequestHeader("X-API-Key", credentials.APIKey);</code>
+                    <p></p>
+                    
+                    <p>From here, we are ready to send out our request:</p>
+                    <pre><code>
+                        var request = new XMLHttpRequest();
+                        var endpoint = "https://www.bungie.net/Platform/Destiny/" + credentials.memberType + "/Stats/GetMembershipIdByDisplayName/" + credentials.username + "/";
+                        request.open("GET", endpoint, true);
+                        request.onreadystatechange = function(){
+                            if(request.readyState === 4 && request.status === 200){
+                                var response = JSON.parse(request.responseText);
+                                console.log(response.Response);
+                            }
+                        };
+                        request.send();
+                    </code></pre>
+                    <p></p>
+                    
+                    <p>Congratulations! You've just made your first request to the Destiny API. This code is pretty typical for an AJAX request, so if it looks strange now, you will become more familiar with it as we progress through this guide. The response we get here will be crucial because it will contain your member ID in the response body. This identifier takes the place of your username for most of the requests that you will go on to make to the Destiny API so save it somewhere. If you've copied the above code exactly, you can find this ID logged in the console ("ctrl + shift + i" on Chrome).</p>                    
+                    
+                    <p>Now that we've got the basic one out of the way, let's try a more interesting request. As mentioned before, for this tutorial we are curious about exotic weapon usage. But before we can access that endpoint, we need character ID's. So we will change our endpoint using our new member ID and make another GET request:</p>
+                    <pre><code>
+                        var request = new XMLHttpRequest();
+                        var endpoint = "http://www.bungie.net/Platform/Destiny/Stats/Account/" + credentials.memberType + "/" + credentials.memberID + "/";
+                        request.open("GET", endpoint, true);
+                        request.setRequestHeader('X-API-Key', credentials.APIKey);
+ 
+                        request.onreadystatechange = function(){
+                            if(request.readyState === 4 && request.status === 200){
+                                var response = JSON.parse(request.responseText);
+                                var chars = recordCharIDs(response);
+                                console.log(characters);
+                            }
+                        }
+                        request.send();
+
+                        function recordCharIDs(response){
+                            var charArray = response.Response.characters;
+                            var totalChars = charArray.length - 1;
+                            var characters = {};
+                            for(var i = 0; i < totalChars; i++){
+                                var charIndex = charArray[i];
+                                if(!charIndex.deleted){
+                                    characters[i] = charIndex.characterID;
+                                }
+                            }
+                            return characters;
+                        }
+                    </code></pre>
+                    <p></p>
+                    
+                    <h4>What am I looking at?</h4>
+                    <p>The Destiny API answers requests with JSON objects. JSON (JavaScript Oriented Notation) simply refers to the format of the information. It is a popular method for sending information because it is relatively easy for both humans and machines to read. It looks a lot like a map or dictionary from other programming languages and works by associating keys (again, think keywords) with values (the information you care about).</p>
+                    <p>The JSON reponse you get back for the request we just made would look something like this:</p>
+                    
+                    <pre><code>
+                    {"mergedDeletedCharacters":
+                        {"results":
+                            {"allPvE":
+                                {"allTime":
+                                    {"activitiesCleared":
+                                        {"statId": "activitiesCleared", "basic":
+                                            {"value": 401, "displayValue": "401"}
+                                        },"weaponKillsSuper":
+                                            {"statId": "weaponKillsSuper","basic":
+                                                {"value":1028,"displayValue":"1028"},"pga":
+                                                    {"value":1.3891891891891892,"displayValue":"1.4"}
+                                                }
+                    ...
+                    </code></pre>
+                    <p></p>
+                    
+                    <p>The request we just made returns aggregate stats across all characters associated with a member ID. However, we are just using is to find our character ID's. Notice that this looks kind of like a folder tree on a Windows desktop. What I have done is access specific sub objects stored within the greater JSON object in much the same way as specifying a filepath (except using "." instead of "/"). What my function at the bottom does is isolate and return character ID's only for current characters (i.e. have not been deleted).</p>
+                    
+                    <h4>Back to buisness</h4>
+                    <p>We have one last request to make and it the one we've been after all along. Now that we have our member ID and our character ID's we can make a request for exotic weapon usage for each character:</p>
+                    <pre><code>
+                        var request = new XMLHttpRequest();
+                        var endpoint = "http://www.bungie.net/Platform/Destiny/Stats/UniqueWeapons/" + credentials.memberType + "/" + credentials.memberID + "/" + characters.char1 + "/";
+                        request.open("GET", endpoint, true);
+                        request.setRequestHeader('X-API-Key', credentials.APIKey);
+ 
+                        request.onreadystatechange = function(){
+                            if(request.readyState === 4 && request.status === 200){
+                                var response = JSON.parse(request.responseText);
+                                var weaponStats = recordWeaponData(response);
+                                console.log(weaponStats);
+                            }
+                        }
+                        request.send();
+
+                        function recordWeaponData(response){
+                            var weaponArray = response.Response.data.weapons;
+                            var totalWeapons = weaponArray.length - 1;
+                            var weapons = {};
+                            for(var i = 0; i < totalWeapons - 1; i++){
+                                var weaponIndex = weaponArray[i];
+                                var weaponKills = weaponIndex.values.uniqueWeaponKills.basic.value;
+                                var precisionRatio = weaponIndex.values.uniqueWeaponKillsPrecisionKills.basic.value;
+                                weapons[i] = {"kills": weaponKills, "accuracy": precisionRatio};
+                            }
+                            return weapons; 
+                        }
+                    </code></pre>
+                    <p></p>
+                    
+                    <p>Notice that this request looks very similar to the last one. Again, the only thing that really changes about out GET requests is the endpoint. Now we simply process the JSON response to get just the data we want and we're almost done.</p>
+              
+                    <a href="page2.html" class="button special">Prev: Obtaining an API Key</a>
+                    <a href="page4.html" class="button">Next: Decoding Your Response</a>
+                </div>
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<div class="copyright">
+					&copy; Colton McDavid. Design: <a href="https://templated.co">TEMPLATED</a>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
